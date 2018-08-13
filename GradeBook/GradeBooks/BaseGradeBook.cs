@@ -15,10 +15,12 @@ namespace GradeBook.GradeBooks
         public List<Student> Students { get; set; }
 
         public GradeBookType Type { get; set; }
+        public bool IsWeighted { get; set; }
 
-        public BaseGradeBook(string name)
+        public BaseGradeBook(string name, bool weighted)
         {
             Name = name;
+            IsWeighted = weighted;
             Students = new List<Student>();
         }
 
@@ -108,18 +110,23 @@ namespace GradeBook.GradeBooks
 
         public virtual double GetGPA(char letterGrade, StudentType studentType)
         {
+            int increment = 0;
+            if (studentType.ToString() != null && (studentType.ToString() == "Honors" || studentType.ToString() == "DualEnrolled") && this.IsWeighted == true)
+            {
+                increment++;
+            }
             switch (letterGrade)
             {
                 case 'A':
-                    return 4;
+                    return 4 + increment;
                 case 'B':
-                    return 3;
+                    return 3 + increment;
                 case 'C':
-                    return 2;
+                    return 2 + increment;
                 case 'D':
-                    return 1;
+                    return 1 + increment;
             }
-            return 0;
+            return 0 + increment;
         }
 
         public virtual void CalculateStatistics()
@@ -263,7 +270,7 @@ namespace GradeBook.GradeBooks
                              from type in assembly.GetTypes()
                              where type.FullName == "GradeBook.GradeBooks.StandardGradeBook"
                              select type).FirstOrDefault();
-            
+
             return JsonConvert.DeserializeObject(json, gradebook);
         }
     }
